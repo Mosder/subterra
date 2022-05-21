@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <canvas id="amogus" width="57" height="285" style="width: 50px; height: 250px;"></canvas>
+    <script>
+        let x = document.getElementById("amogus");
+        let y = x.getContext('2d');
+        let i = 0;
+        let height = 5;
+        setInterval(() => {
+            var img = new Image();
+            img.src = 'laser.png';
+            y.drawImage(img, 0, i, 57, 57 - i, 0, 0, 57, 57 - i);
+            for (let j = 1; j < height; j++)
+                y.drawImage(img, 0, 57 * j - i);
+            y.drawImage(img, 0, 0, 57, i, 0, height * 57 - i, 57, i);
+            i++;
+            if (i >= 57)
+                i = 0;
+        }, 10);
+    </script>
+</body>
+
+</html>
