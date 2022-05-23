@@ -86,7 +86,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
   \*********************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _Game__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Game */ \"./src/Game.ts\");\n\r\nlet controls = {\r\n    up: 'ArrowUp',\r\n    right: 'ArrowRight',\r\n    down: 'ArrowDown',\r\n    left: 'ArrowLeft',\r\n    shoot: 'z',\r\n    hitboxes: 'h'\r\n};\r\nlet game = new _Game__WEBPACK_IMPORTED_MODULE_0__.Game(controls);\r\n\n\n//# sourceURL=webpack://subterra/./src/main.ts?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _Game__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Game */ \"./src/Game.ts\");\n\r\nlet controls = {\r\n    up: 'ArrowUp',\r\n    right: 'ArrowRight',\r\n    down: 'ArrowDown',\r\n    left: 'ArrowLeft',\r\n    shoot: 'z',\r\n    hitboxes: 'h'\r\n};\r\nlet game = new _Game__WEBPACK_IMPORTED_MODULE_0__.Game(controls);\r\nlet canvas = document.getElementById(\"game\");\r\nlet screen = 0;\r\nlet points = \"\";\r\ncanvas.addEventListener(\"click\", (e) => {\r\n    points += `[${Math.floor((e.clientX - 10) * 2188 / 1382 + 1850 * screen)}, ` +\r\n        `${Math.floor((e.clientY - 10) * 1267 / 800)}],\\n`;\r\n});\r\ndocument.body.addEventListener(\"keyup\", (e) => {\r\n    let xd = e.key;\r\n    if (xd === \"Enter\")\r\n        console.log(points);\r\n    else if (xd === \"Delete\")\r\n        points = \"\";\r\n    let x = parseInt(xd);\r\n    if (Number.isInteger(x)) {\r\n        screen = x;\r\n        game.timePassed = x * 5285;\r\n    }\r\n});\r\n\n\n//# sourceURL=webpack://subterra/./src/main.ts?");
 
 /***/ })
 
