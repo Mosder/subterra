@@ -20,7 +20,7 @@ let game = new Game(controls);
 // document.body.addEventListener("keyup", (e) => {
 //     let xd = e.key;
 //     if (xd === "Enter")
-//         console.log(game.getCurrentLines(), game.level.lines);
+//         console.log(points);
 //     else if (xd === "Delete")
 //         points = "";
 //     let x = parseInt(xd);
