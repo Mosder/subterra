@@ -7,7 +7,8 @@ interface Controls {
     right: string,
     down: string,
     left: string,
-    shoot: string
+    shoot: string,
+    hitboxes: string
 }
 interface EnemyMovement {
     direction: Coords;

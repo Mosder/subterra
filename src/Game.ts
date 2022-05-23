@@ -13,6 +13,7 @@ class Game {
     level: Level;
     timePassed: number = 0;
     scrollSpeed: number = 1;
+    showHitboxes: boolean = false;
 
     constructor(controls: Controls) {
         this.player = new Player();
@@ -25,7 +26,7 @@ class Game {
     movement() {
         document.body.addEventListener("keydown", (e) => {
             for (const [action, key] of Object.entries(this.controls)) {
-                if (e.key === key && action !== "shoot") {
+                if (e.key === key && action !== "shoot" && action !== "hitboxes") {
                     this.player.move(action, key);
                 }
             }
@@ -33,12 +34,14 @@ class Game {
         document.body.addEventListener("keyup", (e) => {
             if (this.controls.shoot === e.key)
                 this.bullets.push(this.player.shoot());
+            else if (this.controls.hitboxes === e.key)
+                this.showHitboxes = !this.showHitboxes;
         });
     }
 
     live() {
         setInterval(() => {
-            this.timePassed += 10;
+            // this.timePassed += 10;
             this.entityRemover();
             this.bulletCollisionChecker();
             this.playerCollisionChecker();
@@ -48,27 +51,34 @@ class Game {
     }
 
     draw() {
-        //clear
-        ctx.clearRect(0, 0, boardSize.width, boardSize.height);
+        //background
+        let backgroundGfx = new Image();
+        backgroundGfx.src = "./gfx/background.png"
+        ctx.drawImage(backgroundGfx, -this.timePassed * this.scrollSpeed, 0);
         //lines
-        ctx.strokeStyle = "green";
-        for (const line of this.level.lines) {
-            ctx.beginPath();
-            ctx.moveTo(line.start.x, line.start.y);
-            ctx.lineTo(line.end.x, line.end.y);
-            ctx.stroke();
+        if (this.showHitboxes === true) {
+            ctx.strokeStyle = "red";
+            ctx.lineWidth = 5;
+            for (const line of this.level.lines) {
+                ctx.beginPath();
+                ctx.moveTo(line.start.x - this.timePassed * this.scrollSpeed, line.start.y);
+                ctx.lineTo(line.end.x - this.timePassed * this.scrollSpeed, line.end.y);
+                ctx.stroke();
+            }
         }
         //bullets
         ctx.fillStyle = "gray";
         for (const bullet of this.bullets)
             ctx.fillRect(bullet.position.x, bullet.position.y, bulletSize.width, bulletSize.height);
         //enemies
-        ctx.fillStyle = "blue";
+        let enemyGfx = new Image();
+        enemyGfx.src = "./gfx/enemySample.png"
         for (const enemy of this.enemies)
-            ctx.fillRect(enemy.position.x, enemy.position.y, enemySize.width, enemySize.height);
+            ctx.drawImage(enemyGfx, enemy.position.x, enemy.position.y);
         //player
-        ctx.fillStyle = `#FF0000${this.player.hp.toString(16).padStart(2, '0')}`;
-        ctx.fillRect(this.player.position.x, this.player.position.y, playerSize.width, playerSize.height);
+        let playerGfx = new Image();
+        playerGfx.src = "./gfx/player.png"
+        ctx.drawImage(playerGfx, this.player.position.x, this.player.position.y);
     }
 
     entityRemover() {
@@ -106,8 +116,6 @@ class Game {
             this.player.position.y + playerSize.height > enemy.position.y &&
             this.player.position.y < enemy.position.y + enemySize.height) {
             enemy.kill();
-            if (this.player.hp !== 0)
-                this.player.hp -= 5;
         }
     }
 
