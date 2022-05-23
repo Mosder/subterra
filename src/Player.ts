@@ -5,7 +5,7 @@ import { Bullet } from "./Bullet";
 class Player {
     position: Coords;
     shield: number;
-    speed: number = 1;
+    speed: number = 3.5;
     speedDelay: number = 3;
     blockedMovement: string[] = [];
 
@@ -49,13 +49,13 @@ class Player {
             x: boardSize.width - playerSize.width,
             y: boardSize.height - playerSize.height
         }
-        coords.x = coords.x < 0 ? 0 : (coords.x > bounds.x ? bounds.x : coords.x);
+        coords.x = coords.x < 0 ? 0 : (coords.x > bounds.x * 0.7 ? bounds.x * 0.7 : coords.x);
         coords.y = coords.y < 0 ? 0 : (coords.y > bounds.y ? bounds.y : coords.y);
         return coords;
     }
 
     shoot(): Bullet {
-        return new Bullet({ x: this.position.x + playerSize.width, y: this.position.y + (playerSize.height - bulletSize.height) / 2 });
+        return new Bullet({ x: this.position.x + playerSize.width, y: this.position.y + playerSize.height - bulletSize.height });
     }
 }
 

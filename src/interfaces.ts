@@ -29,5 +29,13 @@ interface Level {
     lines: Line[];
     enemySpawns: EnemySpawn[];
 }
+interface Size {
+    width: number,
+    height: number
+}
+interface Rectangle {
+    topLeft: Coords,
+    size: Size
+}
 
-export { Coords, Controls, EnemyMovement, Line, EnemySpawn, Level };
+export { Coords, Controls, EnemyMovement, Line, EnemySpawn, Level, Rectangle };

@@ -3,7 +3,7 @@ import { Coords } from "./interfaces"
 
 class Bullet {
     position: Coords;
-    speed: number = 5;
+    speed: number = 20;
     speedDelay: number = 1;
     interval: NodeJS.Timer;
     done: boolean = false;

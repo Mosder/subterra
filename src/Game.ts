@@ -1,5 +1,5 @@
 import { Player } from "./Player";
-import { Controls, Level } from "./interfaces";
+import { Controls, Level, Line, Rectangle } from "./interfaces";
 import { Bullet } from "./Bullet";
 import { boardSize, bulletSize, ctx, enemySize, playerSize } from "./consts";
 import { Enemy } from "./Enemy";
@@ -12,7 +12,7 @@ class Game {
     enemies: Enemy[] = [];
     level: Level;
     timePassed: number = 0;
-    scrollSpeed: number = 1;
+    scrollSpeed: number = 0.35;
     showHitboxes: boolean = false;
 
     constructor(controls: Controls) {
@@ -41,7 +41,8 @@ class Game {
 
     live() {
         setInterval(() => {
-            // this.timePassed += 10;
+            if (boardSize.width + this.timePassed * this.scrollSpeed < 18494)
+                this.timePassed += 10;
             this.entityRemover();
             this.bulletCollisionChecker();
             this.playerCollisionChecker();
@@ -59,7 +60,7 @@ class Game {
         if (this.showHitboxes === true) {
             ctx.strokeStyle = "red";
             ctx.lineWidth = 5;
-            for (const line of this.level.lines) {
+            for (const line of this.getCurrentLines()) {
                 ctx.beginPath();
                 ctx.moveTo(line.start.x - this.timePassed * this.scrollSpeed, line.start.y);
                 ctx.lineTo(line.end.x - this.timePassed * this.scrollSpeed, line.end.y);
@@ -67,9 +68,10 @@ class Game {
             }
         }
         //bullets
-        ctx.fillStyle = "gray";
+        let bulletGfx = new Image();
+        bulletGfx.src = "./gfx/bullet.png"
         for (const bullet of this.bullets)
-            ctx.fillRect(bullet.position.x, bullet.position.y, bulletSize.width, bulletSize.height);
+            ctx.drawImage(bulletGfx, bullet.position.x, bullet.position.y);
         //enemies
         let enemyGfx = new Image();
         enemyGfx.src = "./gfx/enemySample.png"
@@ -86,37 +88,95 @@ class Game {
         this.enemies = this.enemies.filter(enemy => enemy.done === false);
     }
 
-    bulletCollisionChecker() {
-        for (const bullet of this.bullets) {
-            for (const enemy of this.enemies) {
-                this.bulletEnemyCollision(bullet, enemy);
+    playerCollisionChecker() {
+        for (const enemy of this.enemies) {
+            if (this.rectanglesCollision({ topLeft: this.player.position, size: playerSize },
+                { topLeft: enemy.position, size: enemySize })) {
+                enemy.kill();
+            }
+        }
+        for (const line of this.getCurrentLines()) {
+            if (this.rectangleLineCollision({ topLeft: this.player.position, size: playerSize },
+                this.getCurrentLinePosition(line))) {
+                console.log("player and line touched");
             }
         }
     }
 
-    playerCollisionChecker() {
-        for (const enemy of this.enemies) {
-            this.playerEnemyCollision(enemy);
+    bulletCollisionChecker() {
+        for (const bullet of this.bullets) {
+            for (const enemy of this.enemies) {
+                if (this.rectanglesCollision({ topLeft: bullet.position, size: bulletSize },
+                    { topLeft: enemy.position, size: enemySize })) {
+                    bullet.kill();
+                    enemy.kill();
+                }
+            }
+            for (const line of this.getCurrentLines()) {
+                if (this.rectangleLineCollision({ topLeft: bullet.position, size: bulletSize },
+                    this.getCurrentLinePosition(line))) {
+                    bullet.kill();
+                }
+            }
         }
     }
 
-    bulletEnemyCollision(bullet: Bullet, enemy: Enemy) {
-        if (bullet.position.x + bulletSize.width > enemy.position.x &&
-            bullet.position.x + bulletSize.width < enemy.position.x + enemySize.width &&
-            bullet.position.y + bulletSize.height > enemy.position.y &&
-            bullet.position.y < enemy.position.y + enemySize.height) {
-            bullet.kill();
-            enemy.kill();
+    rectanglesCollision(rect1: Rectangle, rect2: Rectangle): boolean {
+        if (rect1.topLeft.x + rect1.size.width > rect2.topLeft.x &&
+            rect1.topLeft.x < rect2.topLeft.x + rect2.size.width &&
+            rect1.topLeft.y + rect1.size.height > rect2.topLeft.y &&
+            rect1.topLeft.y < rect2.topLeft.y + rect2.size.height) {
+            return true;
         }
+        return false;
     }
 
-    playerEnemyCollision(enemy: Enemy) {
-        if (this.player.position.x + playerSize.width > enemy.position.x &&
-            this.player.position.x < enemy.position.x + enemySize.width &&
-            this.player.position.y + playerSize.height > enemy.position.y &&
-            this.player.position.y < enemy.position.y + enemySize.height) {
-            enemy.kill();
+    rectangleLineCollision(rect: Rectangle, line: Line): boolean {
+        let rectSides: Line[] = [
+            //top
+            {
+                start: { x: rect.topLeft.x, y: rect.topLeft.y },
+                end: { x: rect.topLeft.x + rect.size.width, y: rect.topLeft.y }
+            },
+            //right
+            {
+                start: { x: rect.topLeft.x + rect.size.width, y: rect.topLeft.y },
+                end: { x: rect.topLeft.x + rect.size.width, y: rect.topLeft.y + rect.size.height }
+            },
+            //bottom
+            {
+                start: { x: rect.topLeft.x, y: rect.topLeft.y + rect.size.height },
+                end: { x: rect.topLeft.x + rect.size.width, y: rect.topLeft.y + rect.size.height }
+            },
+            //left
+            {
+                start: { x: rect.topLeft.x, y: rect.topLeft.y },
+                end: { x: rect.topLeft.x, y: rect.topLeft.y + rect.size.height }
+            }
+        ];
+        for (const side of rectSides) {
+            if (this.linesCollision(line, side))
+                return true;
         }
+        return false;
+    }
+
+    linesCollision(line1: Line, line2: Line): boolean {
+        let x1 = line1.start.x;
+        let y1 = line1.start.y;
+        let x2 = line1.end.x;
+        let y2 = line1.end.y;
+        let x3 = line2.start.x;
+        let y3 = line2.start.y;
+        let x4 = line2.end.x;
+        let y4 = line2.end.y;
+
+        let uA = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / ((y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1));
+        let uB = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / ((y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1));
+
+        if (uA >= 0 && uA <= 1 && uB >= 0 && uB <= 1)
+            return true;
+        return false
     }
 
     spawnEnemy(ai: number, startY: number) {
@@ -130,6 +190,21 @@ class Game {
                 this.spawnEnemy(enemySpawn.ai, enemySpawn.startY);
         }
         this.level.enemySpawns = this.level.enemySpawns.filter(spawn => this.timePassed < spawn.spawnTime);
+    }
+
+    getCurrentLines(): Line[] {
+        return this.level.lines.filter(line =>
+            (line.start.x > this.timePassed * this.scrollSpeed &&
+                line.start.x < this.timePassed * this.scrollSpeed + boardSize.width) ||
+            (line.end.x > this.timePassed * this.scrollSpeed &&
+                line.end.x < this.timePassed * this.scrollSpeed + boardSize.width));
+    }
+
+    getCurrentLinePosition(line: Line): Line {
+        return {
+            start: { x: line.start.x - this.timePassed * this.scrollSpeed, y: line.start.y },
+            end: { x: line.end.x - this.timePassed * this.scrollSpeed, y: line.end.y }
+        };
     }
 }
 
