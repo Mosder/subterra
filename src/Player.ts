@@ -8,8 +8,6 @@ class Player {
     speed: number = 1;
     speedDelay: number = 3;
     blockedMovement: string[] = [];
-    //for testing purposes
-    hp: number = 255;
 
     constructor() {
         this.moveTo({ x: 10, y: (boardSize.height - playerSize.height) / 2 });
