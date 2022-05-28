@@ -26,6 +26,7 @@ interface EnemySpawn {
     startY: number;
 }
 interface Level {
+    blackScreenLength: number;
     lines: Line[];
     enemySpawns: EnemySpawn[];
 }

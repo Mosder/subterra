@@ -4,6 +4,7 @@ import { Bullet } from "./Bullet";
 import { boardSize, bulletSize, ctx, enemySize, playerSize } from "./consts";
 import { Enemy } from "./Enemy";
 import { getLevel } from "./levels";
+import { createTextChangeRange } from "../node_modules/typescript/lib/typescript";
 
 class Game {
     player: Player;
@@ -55,7 +56,9 @@ class Game {
         //background
         let backgroundGfx = new Image();
         backgroundGfx.src = "./gfx/background.png"
-        ctx.drawImage(backgroundGfx, -this.timePassed * this.scrollSpeed, 0);
+        ctx.fillStyle = "#000";
+        ctx.fillRect(-this.timePassed * this.scrollSpeed, 0, this.level.blackScreenLength, boardSize.height);
+        ctx.drawImage(backgroundGfx, -this.timePassed * this.scrollSpeed + this.level.blackScreenLength, 0);
         //lines
         if (this.showHitboxes === true) {
             ctx.strokeStyle = "red";
@@ -74,7 +77,7 @@ class Game {
             ctx.drawImage(bulletGfx, bullet.position.x, bullet.position.y);
         //enemies
         let enemyGfx = new Image();
-        enemyGfx.src = "./gfx/enemySample.png"
+        enemyGfx.src = "./gfx/enemies0.png"
         for (const enemy of this.enemies)
             ctx.drawImage(enemyGfx, enemy.position.x, enemy.position.y);
         //player

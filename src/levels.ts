@@ -2,6 +2,7 @@ import { Level } from "./interfaces";
 
 let levels = [
     {
+        blackScreenLength: 2500,
         ceilPoints: [
             [100, 0],
             [175, 190],
@@ -479,27 +480,30 @@ let levels = [
             ]
         ]
     }
-]
+];
 
 function getLevel(lvlNumber: number) {
-    let level: Level;
+    let level: Level = {
+        blackScreenLength: levels[lvlNumber].blackScreenLength,
+        lines: [],
+        enemySpawns: []
+    };
     if (lvlNumber === 0) {
-        level = {
-            lines: [],
-            enemySpawns: [
-                { spawnTime: 3000, ai: 1, startY: 100 },
-                { spawnTime: 6000, ai: 0, startY: 666 },
-                { spawnTime: 9000, ai: 1, startY: 50 }
-            ]
-        };
-        //Ceil lines
-        addLines(level, levels[0].ceilPoints)
-        //Floor lines
-        addLines(level, levels[0].floorPoints)
-        //Objects in the middle
-        for (const object of levels[0].objects)
-            addLines(level, object);
+        level.enemySpawns = [
+            { spawnTime: 3000, ai: 1, startY: 100 },
+            { spawnTime: 6000, ai: 0, startY: 666 },
+            { spawnTime: 9000, ai: 1, startY: 50 }
+        ];
     }
+
+    //Ceil lines
+    addLines(level, levels[lvlNumber].ceilPoints)
+    //Floor lines
+    addLines(level, levels[lvlNumber].floorPoints)
+    //Objects in the middle
+    for (const object of levels[lvlNumber].objects)
+        addLines(level, object);
+
     return level;
 }
 
@@ -508,8 +512,8 @@ function addLines(level: Level, points: number[][]) {
         let prev = points[i];
         let now = points[i + 1];
         level.lines.push({
-            start: { x: prev[0], y: prev[1] },
-            end: { x: now[0], y: now[1] }
+            start: { x: prev[0] + level.blackScreenLength, y: prev[1] },
+            end: { x: now[0] + level.blackScreenLength, y: now[1] }
         });
     }
 }
