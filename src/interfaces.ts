@@ -14,7 +14,6 @@ interface EnemyMovement {
     direction: Coords;
     distance: number;
     speed: number;
-    speedDelay: number;
 }
 interface Line {
     start: Coords;
@@ -24,6 +23,8 @@ interface EnemySpawn {
     spawnTime: number;
     ai: number;
     startY: number;
+    sprite: number;
+    color: number;
 }
 interface Level {
     blackScreenLength: number;

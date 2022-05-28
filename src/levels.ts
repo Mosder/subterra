@@ -1,8 +1,8 @@
-import { Level } from "./interfaces";
+import { Level, EnemySpawn } from "./interfaces";
 
 let levels = [
     {
-        blackScreenLength: 2500,
+        blackScreenLength: 2506,
         ceilPoints: [
             [100, 0],
             [175, 190],
@@ -480,6 +480,20 @@ let levels = [
                 [13855, 576],
                 [13846, 579]
             ]
+        ],
+        enemyGroups: [
+            {
+                spawnTime: 3000,
+                ai: 1,
+                startY: 50,
+                sprite: 0
+            },
+            {
+                spawnTime: 6000,
+                ai: 0,
+                startY: 666,
+                sprite: 1
+            }
         ]
     }
 ];
@@ -490,14 +504,6 @@ function getLevel(lvlNumber: number) {
         lines: [],
         enemySpawns: []
     };
-    if (lvlNumber === 0) {
-        level.enemySpawns = [
-            { spawnTime: 3000, ai: 1, startY: 100 },
-            { spawnTime: 6000, ai: 0, startY: 666 },
-            { spawnTime: 9000, ai: 1, startY: 50 }
-        ];
-    }
-
     //Ceil lines
     addLines(level, levels[lvlNumber].ceilPoints)
     //Floor lines
@@ -505,6 +511,9 @@ function getLevel(lvlNumber: number) {
     //Objects in the middle
     for (const object of levels[lvlNumber].objects)
         addLines(level, object);
+    //Enemies
+    for (const enemyGroup of levels[lvlNumber].enemyGroups)
+        addEnemies(level, { ...enemyGroup, color: 0 });
 
     return level;
 }
@@ -516,6 +525,18 @@ function addLines(level: Level, points: number[][]) {
         level.lines.push({
             start: { x: prev[0] + level.blackScreenLength, y: prev[1] },
             end: { x: now[0] + level.blackScreenLength, y: now[1] }
+        });
+    }
+}
+
+function addEnemies(level: Level, enemyGroup: EnemySpawn) {
+    for (let i = 0; i < 5; i++) {
+        level.enemySpawns.push({
+            spawnTime: enemyGroup.spawnTime + i * 1000,
+            ai: enemyGroup.ai,
+            startY: enemyGroup.startY,
+            sprite: enemyGroup.sprite,
+            color: i
         });
     }
 }

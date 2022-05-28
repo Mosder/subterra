@@ -4,5 +4,26 @@ const boardSize = { width: 2188, height: 1267 };
 const playerSize = { width: 172, height: 71 };
 const bulletSize = { width: 344, height: 21 };
 const enemySize = { width: 172, height: 150 };
+const gfx = {
+    "background": getImage("background"),
+    "bullet": getImage("bullet"),
+    "enemies": new Array<HTMLImageElement>(),
+    "explosions": getImage("explosions"),
+    "player": getImage("player"),
+    "uiBar": getImage("uiBar"),
+    "digPoints": getImage("digitsPoints"),
+    "digUi": getImage("digitsUi"),
+    "other": getImage("other"),
+    "main": getImage("main"),
+    "gameOver": getImage("gameOver")
+};
+for (let i = 0; i < 2; i++)
+    gfx.enemies.push(getImage(`enemy${i}`));
 
-export { canvas, ctx, boardSize, playerSize, bulletSize, enemySize };
+function getImage(name: string) {
+    let img = new Image();
+    img.src = `./gfx/${name}.png`;
+    return img;
+}
+
+export { canvas, ctx, boardSize, playerSize, bulletSize, enemySize, gfx };

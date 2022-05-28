@@ -4,13 +4,17 @@ import { Bullet } from "./Bullet";
 
 class Player {
     position: Coords;
-    shield: number;
+    shield: number = 0;
     speed: number = 3.5;
     speedDelay: number = 3;
     blockedMovement: string[] = [];
+    spriteStage: number = 0;
+    spriteInterval: NodeJS.Timer;
+    hp: number = 5;
 
     constructor() {
         this.moveTo({ x: 10, y: (boardSize.height - playerSize.height) / 2 });
+        this.activateShield();
     }
 
     moveTo(coords: Coords) {
@@ -55,7 +59,34 @@ class Player {
     }
 
     shoot(): Bullet {
+        this.spriteStage = 1;
+        clearTimeout(this.spriteInterval);
+        this.spriteInterval = setTimeout(() => {
+            this.spriteStage = 0;
+        }, 120);
         return new Bullet({ x: this.position.x + playerSize.width, y: this.position.y + playerSize.height - bulletSize.height });
+    }
+
+    activateShield() {
+        this.shield = 0.25;
+        let shieldInterval = setInterval(() => {
+            this.shield += 0.25;
+            if (this.shield >= 5) {
+                clearInterval(shieldInterval);
+                shieldInterval = setInterval(() => {
+                    this.shield -= 0.25;
+                    if (this.shield <= 0)
+                        clearInterval(shieldInterval);
+                }, 220);
+            }
+        }, 20);
+    }
+
+    kill() {
+        if (this.shield > 0)
+            return;
+        this.activateShield();
+        this.hp--;
     }
 }
 
