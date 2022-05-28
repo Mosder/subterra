@@ -59,17 +59,6 @@ class Game {
         ctx.fillStyle = "#000";
         ctx.fillRect(-this.timePassed * this.scrollSpeed, 0, this.level.blackScreenLength, boardSize.height);
         ctx.drawImage(backgroundGfx, -this.timePassed * this.scrollSpeed + this.level.blackScreenLength, 0);
-        //lines
-        if (this.showHitboxes === true) {
-            ctx.strokeStyle = "red";
-            ctx.lineWidth = 5;
-            for (const line of this.getCurrentLines()) {
-                ctx.beginPath();
-                ctx.moveTo(line.start.x - this.timePassed * this.scrollSpeed, line.start.y);
-                ctx.lineTo(line.end.x - this.timePassed * this.scrollSpeed, line.end.y);
-                ctx.stroke();
-            }
-        }
         //bullets
         let bulletGfx = new Image();
         bulletGfx.src = "./gfx/bullet.png"
@@ -84,6 +73,32 @@ class Game {
         let playerGfx = new Image();
         playerGfx.src = "./gfx/player.png"
         ctx.drawImage(playerGfx, this.player.position.x, this.player.position.y);
+        //hitboxes
+        if (this.showHitboxes === true) {
+            ctx.strokeStyle = "red";
+            ctx.lineWidth = 5;
+            for (const line of this.getCurrentLines()) {
+                this.drawLine(line.start.x - this.timePassed * this.scrollSpeed, line.start.y,
+                    line.end.x - this.timePassed * this.scrollSpeed, line.end.y);
+            }
+            let sides: Line[] = [];
+            for (const bullet of this.bullets) {
+                sides.push(...this.getRectSides({ topLeft: bullet.position, size: bulletSize }));
+            }
+            for (const enemy of this.enemies) {
+                sides.push(...this.getRectSides({ topLeft: enemy.position, size: enemySize }));
+            }
+            sides.push(...this.getRectSides({ topLeft: this.player.position, size: playerSize }));
+            for (const side of sides)
+                this.drawLine(side.start.x, side.start.y, side.end.x, side.end.y);
+        }
+    }
+
+    drawLine(x1: number, y1: number, x2: number, y2: number) {
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
     }
 
     entityRemover() {
@@ -135,28 +150,7 @@ class Game {
     }
 
     rectangleLineCollision(rect: Rectangle, line: Line): boolean {
-        let rectSides: Line[] = [
-            //top
-            {
-                start: { x: rect.topLeft.x, y: rect.topLeft.y },
-                end: { x: rect.topLeft.x + rect.size.width, y: rect.topLeft.y }
-            },
-            //right
-            {
-                start: { x: rect.topLeft.x + rect.size.width, y: rect.topLeft.y },
-                end: { x: rect.topLeft.x + rect.size.width, y: rect.topLeft.y + rect.size.height }
-            },
-            //bottom
-            {
-                start: { x: rect.topLeft.x, y: rect.topLeft.y + rect.size.height },
-                end: { x: rect.topLeft.x + rect.size.width, y: rect.topLeft.y + rect.size.height }
-            },
-            //left
-            {
-                start: { x: rect.topLeft.x, y: rect.topLeft.y },
-                end: { x: rect.topLeft.x, y: rect.topLeft.y + rect.size.height }
-            }
-        ];
+        let rectSides: Line[] = this.getRectSides(rect);
         for (const side of rectSides) {
             if (this.linesCollision(line, side))
                 return true;
@@ -208,6 +202,31 @@ class Game {
             start: { x: line.start.x - this.timePassed * this.scrollSpeed, y: line.start.y },
             end: { x: line.end.x - this.timePassed * this.scrollSpeed, y: line.end.y }
         };
+    }
+
+    getRectSides(rect: Rectangle): Line[] {
+        return [
+            //top
+            {
+                start: { x: rect.topLeft.x, y: rect.topLeft.y },
+                end: { x: rect.topLeft.x + rect.size.width, y: rect.topLeft.y }
+            },
+            //right
+            {
+                start: { x: rect.topLeft.x + rect.size.width, y: rect.topLeft.y },
+                end: { x: rect.topLeft.x + rect.size.width, y: rect.topLeft.y + rect.size.height }
+            },
+            //bottom
+            {
+                start: { x: rect.topLeft.x, y: rect.topLeft.y + rect.size.height },
+                end: { x: rect.topLeft.x + rect.size.width, y: rect.topLeft.y + rect.size.height }
+            },
+            //left
+            {
+                start: { x: rect.topLeft.x, y: rect.topLeft.y },
+                end: { x: rect.topLeft.x, y: rect.topLeft.y + rect.size.height }
+            }
+        ];
     }
 }
 
