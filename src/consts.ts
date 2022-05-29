@@ -10,14 +10,17 @@ const gfx = {
     "enemies": new Array<HTMLImageElement>(),
     "explosions": getImage("explosions"),
     "player": getImage("player"),
+    "shield": getImage("shield"),
     "uiBar": getImage("uiBar"),
     "digPoints": getImage("digitsPoints"),
     "digUi": getImage("digitsUi"),
     "other": getImage("other"),
     "main": getImage("main"),
-    "gameOver": getImage("gameOver")
+    "prepare": getImage("prepare"),
+    "gameOver": getImage("gameOver"),
+    "completed": getImage("completed")
 };
-for (let i = 0; i < 2; i++)
+for (let i = 0; i < 5; i++)
     gfx.enemies.push(getImage(`enemy${i}`));
 
 function getImage(name: string) {

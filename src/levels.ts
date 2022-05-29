@@ -482,17 +482,48 @@ let levels = [
             ]
         ],
         enemyGroups: [
+            //do all ai
             {
-                spawnTime: 3000,
-                ai: 1,
-                startY: 50,
+                spawnTime: 1e3,
+                ai: 0,
+                startY: 0,
                 sprite: 0
             },
             {
-                spawnTime: 6000,
+                spawnTime: 9e3,
                 ai: 0,
                 startY: 666,
                 sprite: 1
+            },
+            {
+                spawnTime: 19e3,
+                ai: 0,
+                startY: 666,
+                sprite: 0
+            },
+            {
+                spawnTime: 26e3,
+                ai: 0,
+                startY: 666,
+                sprite: 2
+            },
+            {
+                spawnTime: 33e3,
+                ai: 0,
+                startY: 666,
+                sprite: 3
+            },
+            {
+                spawnTime: 40e3,
+                ai: 0,
+                startY: 666,
+                sprite: 0
+            },
+            {
+                spawnTime: 48e3,
+                ai: 0,
+                startY: 666,
+                sprite: 4
             }
         ]
     }
@@ -532,7 +563,7 @@ function addLines(level: Level, points: number[][]) {
 function addEnemies(level: Level, enemyGroup: EnemySpawn) {
     for (let i = 0; i < 5; i++) {
         level.enemySpawns.push({
-            spawnTime: enemyGroup.spawnTime + i * 1000,
+            spawnTime: enemyGroup.spawnTime + i * 22 * 20,
             ai: enemyGroup.ai,
             startY: enemyGroup.startY,
             sprite: enemyGroup.sprite,

@@ -15,17 +15,20 @@ class Game {
     levelNumber: number;
     level: Level;
     timePassed: number = 0;
-    scrollSpeed: number = .35;
+    scrollSpeed: number = .36;
     showHitboxes: boolean = false;
     points: number = 0;
 
     constructor(controls: Controls, levelNumber: number) {
-        this.player = new Player();
-        this.controls = controls;
-        this.levelNumber = levelNumber;
-        this.level = getLevel(levelNumber);
-        this.movement();
-        this.live();
+        this.textScreen(gfx.prepare);
+        setTimeout(() => {
+            this.player = new Player();
+            this.controls = controls;
+            this.levelNumber = levelNumber;
+            this.level = getLevel(levelNumber);
+            this.movement();
+            this.live();
+        }, 120 * 20);
     }
 
     movement() {
@@ -46,24 +49,31 @@ class Game {
 
     live() {
         let live = setInterval(() => {
-            if (boardSize.width + this.timePassed * this.scrollSpeed < 21000)
-                this.timePassed += 10;
+            this.timePassed += 10;
             this.entityRemover();
             this.bulletCollisionChecker();
             this.playerCollisionChecker();
             this.enemySpawner();
             this.draw();
-            if (this.player.hp < 0) {
+            if (boardSize.width + this.timePassed * this.scrollSpeed >= 21000) {
                 clearInterval(live);
-                this.dieForGood();
+                this.textScreen(gfx.completed);
+                setTimeout(() => ctx.drawImage(gfx.main, 0, 0), 120 * 20);
             }
+            else if (this.player.hp === -1) {
+                clearInterval(live);
+                this.textScreen(gfx.gameOver);
+                setTimeout(() => ctx.drawImage(gfx.main, 0, 0), 120 * 20);
+            }
+            else if (this.player.hp === -2)
+                clearInterval(live);
         }, 1000 / 100);
     }
 
     draw() {
-        //background
         ctx.fillStyle = "#000";
-        ctx.fillRect(-this.timePassed * this.scrollSpeed, 0, this.level.blackScreenLength, boardSize.height);
+        ctx.fillRect(0, 0, 2188, 1440);
+        //background
         ctx.drawImage(gfx.background, -this.timePassed * this.scrollSpeed + this.level.blackScreenLength, 0);
         //bullets
         for (const bullet of this.bullets)
@@ -81,13 +91,15 @@ class Game {
                 enemySize.width, enemySize.height);
         }
         //player
-        ctx.drawImage(gfx.player, this.player.spriteStage * playerSize.width, 0, playerSize.width, playerSize.height,
-            this.player.position.x, this.player.position.y, playerSize.width, playerSize.height);
-        //ui bar
-        ctx.fillStyle = "#000";
-        ctx.fillRect(0, boardSize.height, boardSize.width, 173);
-        ctx.drawImage(gfx.uiBar, boardSize.width - 1498, boardSize.height + 7);
+        ctx.drawImage(gfx.player, this.player.justShot * playerSize.width, this.player.spriteStage * playerSize.height,
+            playerSize.width, playerSize.height, this.player.position.x, this.player.position.y,
+            playerSize.width, playerSize.height);
         //shield
+        ctx.drawImage(gfx.shield, 158 * Math.floor(this.player.shieldSpriteStage), 0, 158, 288,
+            this.player.position.x + 57, this.player.position.y - 94, 158, 288);
+        //ui bar
+        ctx.drawImage(gfx.uiBar, boardSize.width - 1498, boardSize.height + 7);
+        //shield ui
         let shield = this.player.shield;
         for (let i = 0; i < shield; i += 0.25) {
             ctx.drawImage(gfx.other, 57 * (1 + i % 1), 0, 57 / 4, 57,
@@ -105,7 +117,7 @@ class Game {
         ctx.drawImage(gfx.digUi, this.player.hp * 68, 0, 68, 51,
             boardSize.width - 178, boardSize.height + 61, 68, 51);
         //hitboxes
-        if (this.showHitboxes === true) {
+        if (this.showHitboxes) {
             ctx.strokeStyle = "red";
             ctx.lineWidth = 5;
             for (const line of this.getCurrentLines()) {
@@ -266,10 +278,19 @@ class Game {
         ];
     }
 
-    dieForGood() {
-        ctx.fillStyle = "#000";
-        ctx.fillRect(0, 0, 2188, 1440);
-        ctx.drawImage(gfx.gameOver, 859, 696);
+    textScreen(graphic: HTMLImageElement) {
+        let time = 0;
+        let interval = setInterval(() => {
+            let op = (time < 32 ? Math.floor(time / 8) : (time > 82 ? Math.floor((114 - time) / 8) : 4)) * 0.25;
+            ctx.fillStyle = "#000";
+            ctx.fillRect(0, 0, 2188, 1440);
+            ctx.globalAlpha = op;
+            ctx.drawImage(graphic, (2188 - graphic.width) / 2, (1440 - graphic.height) / 2);
+            ctx.globalAlpha = 1;
+            time++;
+            if (time >= 114)
+                clearInterval(interval);
+        }, 20);
     }
 }
 

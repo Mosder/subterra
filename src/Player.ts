@@ -9,7 +9,8 @@ class Player {
     speedDelay: number = 3;
     blockedMovement: string[] = [];
     spriteStage: number = 0;
-    spriteInterval: NodeJS.Timer;
+    shieldSpriteStage: number = -1;
+    justShot: number = 0;
     hp: number = 5;
 
     constructor() {
@@ -59,10 +60,11 @@ class Player {
     }
 
     shoot(): Bullet {
-        this.spriteStage = 1;
-        clearTimeout(this.spriteInterval);
-        this.spriteInterval = setTimeout(() => {
-            this.spriteStage = 0;
+        if (this.justShot)
+            return new Bullet({ x: 69420, y: 2137 });
+        this.justShot = 1;
+        setTimeout(() => {
+            this.justShot = 0;
         }, 120);
         return new Bullet({ x: this.position.x + playerSize.width, y: this.position.y + playerSize.height - bulletSize.height });
     }
@@ -75,11 +77,28 @@ class Player {
                 clearInterval(shieldInterval);
                 shieldInterval = setInterval(() => {
                     this.shield -= 0.25;
-                    if (this.shield <= 0)
+                    if (this.shield <= 0) {
                         clearInterval(shieldInterval);
+                    }
                 }, 220);
             }
         }, 20);
+        this.spriteStage = 1;
+        let spriteDiff = -1;
+        this.shieldSpriteStage = 0;
+        let spriteInterval = setInterval(() => {
+            if (this.spriteStage == 1 || this.spriteStage == 5)
+                spriteDiff *= -1;
+            this.spriteStage += spriteDiff;
+            this.shieldSpriteStage += 0.5;
+            if (this.shieldSpriteStage >= 4)
+                this.shieldSpriteStage = 0;
+            if (this.shield <= 0.25) {
+                clearInterval(spriteInterval);
+                this.spriteStage = 0;
+                this.shieldSpriteStage = -1;
+            }
+        }, 60);
     }
 
     kill() {

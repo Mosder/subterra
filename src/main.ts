@@ -12,8 +12,11 @@ let controls = {
 let game: Game;
 gfx.main.onload = () => { ctx.drawImage(gfx.main, 0, 0); };
 document.body.addEventListener("keyup", (e) => {
-    if (e.key === "Enter")
+    if (e.key === "Enter") {
+        if (game !== undefined)
+            game.player.hp = -2;
         game = new Game(controls, 0);
+    }
 });
 
 // let canvas = document.getElementById("game");
