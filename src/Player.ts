@@ -1,5 +1,5 @@
 import { Coords } from "./interfaces";
-import { boardSize, playerSize, bulletSize } from "./consts";
+import { boardSize, playerSize, bulletSize, audioPlayer } from "./consts";
 import { Bullet } from "./Bullet";
 
 class Player {
@@ -62,6 +62,7 @@ class Player {
     shoot(): Bullet {
         if (this.justShot)
             return new Bullet({ x: 69420, y: 2137 });
+        audioPlayer.play("shot", false);
         this.justShot = 1;
         setTimeout(() => {
             this.justShot = 0;
@@ -70,6 +71,7 @@ class Player {
     }
 
     activateShield() {
+        audioPlayer.play("shield", false);
         this.shield = 0.25;
         let shieldInterval = setInterval(() => {
             this.shield += 0.25;
@@ -104,6 +106,7 @@ class Player {
     kill() {
         if (this.shield > 0)
             return;
+        audioPlayer.play("player", false);
         this.activateShield();
         this.hp--;
     }

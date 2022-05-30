@@ -1,5 +1,9 @@
-import { ctx, gfx } from "./consts";
+import { ctx, gfx, audioPlayer } from "./consts";
 import { Game } from "./Game";
+
+ctx.fillStyle = "#000";
+ctx.fillRect(0, 0, 2188, 1440);
+let loaded = false;
 
 let controls = {
     up: 'ArrowUp',
@@ -10,16 +14,27 @@ let controls = {
     hitboxes: 'h'
 }
 let game: Game;
-gfx.main.onload = () => { ctx.drawImage(gfx.main, 0, 0); };
+
 document.body.addEventListener("keyup", (e) => {
     if (e.key === "Enter") {
-        if (game !== undefined)
-            game.player.hp = -2;
-        game = new Game(controls, 0);
+        if (loaded) {
+            if (game !== undefined)
+                game.player.hp = -2;
+            game = new Game(controls, 0);
+            audioPlayer.stop();
+        }
+        else {
+            ctx.drawImage(gfx.main, 0, 0);
+            audioPlayer.play("main", true);
+            loaded = true;
+        }
+    }
+    else if (e.key === "m") {
+        audioPlayer.changeVolume(Math.abs(audioPlayer.volume - 1));
     }
 });
 
-// TODO: EnemyAI, Audio, PlayerExplode
+// TODO: EnemyAI, PlayerExplode
 
 // let canvas = document.getElementById("game");
 // let screen = 0;

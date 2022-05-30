@@ -1,7 +1,7 @@
 import { Player } from "./Player";
 import { Block, Controls, Coords, EnemySpawn, Laser, Level, Line, Rectangle, Size } from "./interfaces";
 import { Bullet } from "./Bullet";
-import { boardSize, bulletSize, ctx, enemySize, playerSize, gfx, backObjSize } from "./consts";
+import { boardSize, bulletSize, ctx, enemySize, playerSize, gfx, backObjSize, audioPlayer } from "./consts";
 import { Enemy } from "./Enemy";
 import { getLevel } from "./levels";
 import { Explosion } from "./Explosion";
@@ -60,12 +60,19 @@ class Game {
             if (boardSize.width + this.timePassed * this.scrollSpeed >= 21000) {
                 clearInterval(live);
                 this.textScreen(gfx.completed);
-                setTimeout(() => ctx.drawImage(gfx.main, 0, 0), 120 * 20);
+                audioPlayer.play("complete", false);
+                setTimeout(() => {
+                    ctx.drawImage(gfx.main, 0, 0);
+                    audioPlayer.play("main", true);
+                }, 120 * 20);
             }
             else if (this.player.hp === -1) {
                 clearInterval(live);
                 this.textScreen(gfx.gameOver);
-                setTimeout(() => ctx.drawImage(gfx.main, 0, 0), 120 * 20);
+                setTimeout(() => {
+                    ctx.drawImage(gfx.main, 0, 0);
+                    audioPlayer.play("main", true);
+                }, 120 * 20);
             }
             else if (this.player.hp === -2)
                 clearInterval(live);
@@ -226,6 +233,7 @@ class Game {
                     { topLeft: enemy.position, size: enemySize })) {
                     bullet.kill();
                     enemy.kill();
+                    audioPlayer.play("enemy", false);
                     this.explosions.push(new Explosion(enemy.position, enemy.color));
                     this.points += 20;
                 }
@@ -242,6 +250,7 @@ class Game {
                 if (this.rectanglesCollision({ topLeft: bullet.position, size: bulletSize },
                     { topLeft: this.getCurrentBackObjPosition(block.position), size: backObjSize })) {
                     block.ded = true;
+                    audioPlayer.play("block", false);
                     this.points += 10;
                 }
             }
@@ -259,6 +268,7 @@ class Game {
                     { topLeft: this.getCurrentBackObjPosition(sw), size: backObjSize })) {
                     bullet.kill();
                     this.activeLasers = false;
+                    audioPlayer.play("laser", false);
                     clearTimeout(this.laserTimeout);
                     this.laserTimeout = setTimeout(() => { this.activeLasers = true }, 2000);
                 }
