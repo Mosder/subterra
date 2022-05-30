@@ -30,14 +30,25 @@ interface Level {
     blackScreenLength: number;
     lines: Line[];
     enemySpawns: EnemySpawn[];
+    blocks: Block[];
+    lasers: Laser[];
+    switches: Coords[];
 }
 interface Size {
-    width: number,
-    height: number
+    width: number;
+    height: number;
 }
 interface Rectangle {
-    topLeft: Coords,
-    size: Size
+    topLeft: Coords;
+    size: Size;
+}
+interface Block {
+    position: Coords;
+    ded: boolean;
+}
+interface Laser {
+    position: Coords;
+    height: number;
 }
 
-export { Coords, Controls, EnemyMovement, Line, EnemySpawn, Level, Rectangle };
+export { Coords, Controls, EnemyMovement, Line, EnemySpawn, Level, Rectangle, Block, Laser, Size };

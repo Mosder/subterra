@@ -4,6 +4,7 @@ const boardSize = { width: 2188, height: 1267 };
 const playerSize = { width: 172, height: 71 };
 const bulletSize = { width: 344, height: 21 };
 const enemySize = { width: 172, height: 150 };
+const backObjSize = { width: 57, height: 57 };
 const gfx = {
     "background": getImage("background"),
     "bullet": getImage("bullet"),
@@ -29,4 +30,4 @@ function getImage(name: string) {
     return img;
 }
 
-export { canvas, ctx, boardSize, playerSize, bulletSize, enemySize, gfx };
+export { canvas, ctx, boardSize, playerSize, bulletSize, enemySize, backObjSize, gfx };

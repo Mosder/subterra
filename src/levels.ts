@@ -1,3 +1,4 @@
+import { backObjSize } from "./consts";
 import { Level, EnemySpawn } from "./interfaces";
 
 let levels = [
@@ -482,7 +483,6 @@ let levels = [
             ]
         ],
         enemyGroups: [
-            //do all ai
             {
                 spawnTime: 1e3,
                 ai: 0,
@@ -525,6 +525,26 @@ let levels = [
                 startY: 666,
                 sprite: 4
             }
+        ],
+        blocks: [
+            [3802, 288, 7],
+            [3917, 115, 10],
+            [4032, 288, 5],
+            [16133, 288, 4],
+            [16190, 288, 4],
+            [17054, 287, 7],
+            [17169, 114, 10],
+            [17284, 287, 5]
+        ],
+        lasers: [
+            [6049, 518, 6],
+            [10660, 518, 6],
+            [15729, 173, 14]
+        ],
+        switches: [
+            [5991, 518],
+            [10602, 518],
+            [15614, 1037]
         ]
     }
 ];
@@ -533,7 +553,10 @@ function getLevel(lvlNumber: number) {
     let level: Level = {
         blackScreenLength: levels[lvlNumber].blackScreenLength,
         lines: [],
-        enemySpawns: []
+        enemySpawns: [],
+        blocks: [],
+        lasers: [],
+        switches: []
     };
     //Ceil lines
     addLines(level, levels[lvlNumber].ceilPoints)
@@ -545,6 +568,12 @@ function getLevel(lvlNumber: number) {
     //Enemies
     for (const enemyGroup of levels[lvlNumber].enemyGroups)
         addEnemies(level, { ...enemyGroup, color: 0 });
+    //Blocks
+    addBlocks(level, levels[lvlNumber].blocks);
+    //Lasers
+    addLasers(level, levels[lvlNumber].lasers);
+    //Switches
+    addSwitches(level, levels[lvlNumber].switches);
 
     return level;
 }
@@ -561,7 +590,7 @@ function addLines(level: Level, points: number[][]) {
 }
 
 function addEnemies(level: Level, enemyGroup: EnemySpawn) {
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 5; i++)
         level.enemySpawns.push({
             spawnTime: enemyGroup.spawnTime + i * 22 * 20,
             ai: enemyGroup.ai,
@@ -569,7 +598,22 @@ function addEnemies(level: Level, enemyGroup: EnemySpawn) {
             sprite: enemyGroup.sprite,
             color: i
         });
-    }
+}
+
+function addBlocks(level: Level, blocks: number[][]) {
+    for (const block of blocks)
+        for (let i = 0; i < block[2]; i++)
+            level.blocks.push({ position: { x: block[0] + level.blackScreenLength, y: block[1] + i * backObjSize.height }, ded: false });
+}
+
+function addLasers(level: Level, lasers: number[][]) {
+    for (const laser of lasers)
+        level.lasers.push({ position: { x: laser[0] + level.blackScreenLength, y: laser[1] }, height: laser[2] });
+}
+
+function addSwitches(level: Level, switches: number[][]) {
+    for (const sw of switches)
+        level.switches.push({ x: sw[0] + level.blackScreenLength, y: sw[1] });
 }
 
 export { getLevel };

@@ -19,6 +19,8 @@ document.body.addEventListener("keyup", (e) => {
     }
 });
 
+// TODO: EnemyAI, Audio, PlayerExplode
+
 // let canvas = document.getElementById("game");
 // let screen = 0;
 // let points = "";
