@@ -10,6 +10,7 @@ class Enemy {
     sprite: number;
     spriteStage: number = 0;
     color: number;
+    pause: boolean = false;
 
     constructor(enemySpawn: EnemySpawn) {
         this.ai = getEnemyAi(enemySpawn.ai);
@@ -26,6 +27,8 @@ class Enemy {
     newInterval(stage: number) {
         clearInterval(this.interval);
         this.interval = setInterval(() => {
+            if (this.pause)
+                return;
             this.spriteStage += 0.05;
             if (this.spriteStage >= 4)
                 this.spriteStage = 0;

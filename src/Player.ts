@@ -12,30 +12,49 @@ class Player {
     shieldSpriteStage: number = -1;
     justShot: number = 0;
     hp: number = 5;
+    movement: Coords = { x: 0, y: 0 };
+    justDied: boolean = false;
 
     constructor() {
         this.moveTo({ x: 10, y: (boardSize.height - playerSize.height) / 2 });
         this.activateShield();
+        this.moving();
     }
 
     moveTo(coords: Coords) {
-        this.position = this.stayInBox(coords);
+        if (!this.justDied)
+            this.position = this.stayInBox(coords);
+    }
+
+    moving() {
+        setInterval(() => {
+            this.moveTo({
+                x: this.position.x + this.movement.x * this.speed,
+                y: this.position.y + this.movement.y * this.speed
+            });
+        }, this.speedDelay);
     }
 
     move(dir: string, key: string) {
         if (this.blockedMovement.includes(key))
             return;
-        let direction = this.getDirection(dir);
-        let moving = setInterval(() => {
-            this.moveTo({ x: this.position.x + direction.x * this.speed, y: this.position.y + direction.y * this.speed })
-        }, this.speedDelay);
         this.blockedMovement.push(key);
+        let direction = this.getDirection(dir);
+        this.movement = {
+            x: this.movement.x + direction.x,
+            y: this.movement.y + direction.y
+        }
+        let cancelled = false;
         document.body.addEventListener("keyup", (e) => {
-            if (e.key === key) {
-                clearInterval(moving);
+            if (e.key === key && !cancelled) {
+                cancelled = true;
                 this.blockedMovement = this.blockedMovement.filter(val => val !== key);
+                this.movement = {
+                    x: this.movement.x - direction.x,
+                    y: this.movement.y - direction.y
+                }
             }
-        })
+        });
     }
 
     getDirection(direction: string): Coords {
@@ -55,19 +74,25 @@ class Player {
             y: boardSize.height - playerSize.height
         }
         coords.x = coords.x < 0 ? 0 : (coords.x > bounds.x * 0.7 ? bounds.x * 0.7 : coords.x);
-        coords.y = coords.y < 0 ? 0 : (coords.y > bounds.y ? bounds.y : coords.y);
+        coords.y = coords.y < 30 ? 30 : (coords.y > bounds.y - 65 ? bounds.y - 65 : coords.y);
         return coords;
     }
 
-    shoot(): Bullet {
-        if (this.justShot)
-            return new Bullet({ x: 69420, y: 2137 });
+    shoot(): Bullet[] {
+        if (this.justShot || this.justDied)
+            return [new Bullet({ x: 69420, y: 2137 })];
         audioPlayer.play("shot", false);
         this.justShot = 1;
         setTimeout(() => {
             this.justShot = 0;
         }, 120);
-        return new Bullet({ x: this.position.x + playerSize.width, y: this.position.y + playerSize.height - bulletSize.height });
+        if (!this.isVertical())
+            return [new Bullet({ x: this.position.x + playerSize.width, y: this.position.y + playerSize.height - bulletSize.height })];
+        else
+            return [
+                new Bullet({ x: this.position.x + playerSize.width, y: this.position.y + playerSize.height - bulletSize.height * 2 / 3 }),
+                new Bullet({ x: this.position.x + playerSize.width, y: this.position.y - 1 })
+            ];
     }
 
     activateShield() {
@@ -103,12 +128,17 @@ class Player {
         }, 60);
     }
 
-    kill() {
+    isVertical(): boolean {
+        if (!this.movement.y || this.position.y == 30 || this.position.y == boardSize.height - playerSize.height - 65)
+            return false;
+        return true;
+    }
+
+    kill(): boolean {
         if (this.shield > 0)
-            return;
+            return false;
         audioPlayer.play("player", false);
-        this.activateShield();
-        this.hp--;
+        return true;
     }
 }
 

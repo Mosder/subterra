@@ -34,7 +34,7 @@ document.body.addEventListener("keyup", (e) => {
     }
 });
 
-// TODO: EnemyAI, PlayerExplode
+// TODO: EnemyAI
 
 // let canvas = document.getElementById("game");
 // let screen = 0;

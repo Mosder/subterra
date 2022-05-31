@@ -7,6 +7,7 @@ class Bullet {
     speedDelay: number = 1;
     interval: NodeJS.Timer;
     done: boolean = false;
+    pause: boolean = false;
 
     constructor(position: Coords) {
         this.position = position;
@@ -15,6 +16,8 @@ class Bullet {
 
     nyoom() {
         this.interval = setInterval(() => {
+            if (this.pause)
+                return;
             this.position.x += this.speed;
             if (this.position.x > boardSize.width) {
                 this.kill();

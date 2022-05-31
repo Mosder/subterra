@@ -20,6 +20,7 @@ class Game {
     points: number = 0;
     activeLasers: boolean = true;
     laserTimeout: NodeJS.Timer;
+    expoStage: number = -1;
 
     constructor(controls: Controls, levelNumber: number) {
         this.textScreen(gfx.prepare);
@@ -43,7 +44,7 @@ class Game {
         });
         document.body.addEventListener("keyup", (e) => {
             if (this.controls.shoot === e.key)
-                this.bullets.push(this.player.shoot());
+                this.bullets.push(...this.player.shoot());
             else if (this.controls.hitboxes === e.key)
                 this.showHitboxes = !this.showHitboxes;
         });
@@ -51,13 +52,18 @@ class Game {
 
     live() {
         let live = setInterval(() => {
-            this.timePassed += 10;
-            this.entityRemover();
-            this.bulletCollisionChecker();
-            this.playerCollisionChecker();
-            this.enemySpawner();
+            if (!this.player.justDied) {
+                this.timePassed += 10;
+                this.entityRemover();
+                this.bulletCollisionChecker();
+                this.playerCollisionChecker();
+                this.enemySpawner();
+            }
             this.draw();
+            if (this.player.justDied)
+                return;
             if (boardSize.width + this.timePassed * this.scrollSpeed >= 21000) {
+                audioPlayer.stop();
                 clearInterval(live);
                 this.textScreen(gfx.completed);
                 audioPlayer.play("complete", false);
@@ -67,6 +73,7 @@ class Game {
                 }, 120 * 20);
             }
             else if (this.player.hp === -1) {
+                audioPlayer.stop();
                 clearInterval(live);
                 this.textScreen(gfx.gameOver);
                 setTimeout(() => {
@@ -74,8 +81,10 @@ class Game {
                     audioPlayer.play("main", true);
                 }, 120 * 20);
             }
-            else if (this.player.hp === -2)
+            else if (this.player.hp === -2) {
+                audioPlayer.stop();
                 clearInterval(live);
+            }
         }, 1000 / 100);
     }
 
@@ -124,9 +133,21 @@ class Game {
                 enemySize.width, enemySize.height);
         }
         //player
-        ctx.drawImage(gfx.player, this.player.justShot * playerSize.width, this.player.spriteStage * playerSize.height,
-            playerSize.width, playerSize.height, this.player.position.x, this.player.position.y,
-            playerSize.width, playerSize.height);
+        if (this.expoStage === -1) {
+            if (!this.player.isVertical())
+                ctx.drawImage(gfx.player, this.player.justShot * playerSize.width, this.player.spriteStage * playerSize.height,
+                    playerSize.width, playerSize.height, this.player.position.x, this.player.position.y,
+                    playerSize.width, playerSize.height);
+            else {
+                let playerHeight = playerSize.height + 15
+                ctx.drawImage(gfx.playerVert, this.player.justShot * playerSize.width, this.player.spriteStage * playerHeight,
+                    playerSize.width, playerHeight, this.player.position.x, this.player.position.y - 8,
+                    playerSize.width, playerHeight);
+            }
+        }
+        else
+            ctx.drawImage(gfx.expo, this.expoStage * 200, 0, 200, 161,
+                this.player.position.x - 14, this.player.position.y - 45, 200, 161);
         //shield
         ctx.drawImage(gfx.shield, 158 * Math.floor(this.player.shieldSpriteStage), 0, 158, 288,
             this.player.position.x + 57, this.player.position.y - 94, 158, 288);
@@ -194,7 +215,8 @@ class Game {
             if (this.rectanglesCollision({ topLeft: this.player.position, size: playerSize },
                 { topLeft: enemy.position, size: enemySize })) {
                 enemy.kill();
-                this.player.kill();
+                if (this.player.kill())
+                    this.playerDied();
                 this.explosions.push(new Explosion(enemy.position, enemy.color));
                 this.points += 20;
             }
@@ -203,7 +225,8 @@ class Game {
         for (const line of this.getCurrentLines()) {
             if (this.rectangleLineCollision({ topLeft: this.player.position, size: playerSize },
                 this.getCurrentLinePosition(line))) {
-                this.player.kill();
+                if (this.player.kill())
+                    this.playerDied();
             }
         }
         //blocks
@@ -211,7 +234,8 @@ class Game {
             if (this.rectanglesCollision({ topLeft: this.player.position, size: playerSize },
                 { topLeft: this.getCurrentBackObjPosition(block.position), size: backObjSize })) {
                 block.ded = true;
-                this.player.kill();
+                if (this.player.kill())
+                    this.playerDied();
                 this.points += 10;
             }
         }
@@ -220,7 +244,8 @@ class Game {
             for (const laser of this.getCurrentLasers()) {
                 if (this.rectanglesCollision({ topLeft: this.player.position, size: playerSize },
                     { topLeft: this.getCurrentBackObjPosition(laser.position), size: this.getLaserSize(laser) })) {
-                    this.player.kill();
+                    if (this.player.kill())
+                        this.playerDied();
                 }
             }
     }
@@ -412,6 +437,34 @@ class Game {
             if (time >= 114)
                 clearInterval(interval);
         }, 20);
+    }
+
+    playerDied() {
+        if (this.player.justDied)
+            return;
+        this.player.justDied = true;
+        for (const bullet of this.bullets)
+            bullet.pause = true;
+        for (const enemy of this.enemies)
+            enemy.pause = true;
+        this.expoStage = 0;
+        let expoInterval = setInterval(() => {
+            this.expoStage++;
+            if (this.expoStage == 4)
+                clearInterval(expoInterval);
+        }, 110);
+        setTimeout(() => {
+            this.expoStage = -1;
+            this.player.activateShield();
+            this.player.hp--;
+        }, 550);
+        setTimeout(() => {
+            this.player.justDied = false;
+            for (const bullet of this.bullets)
+                bullet.pause = false;
+            for (const enemy of this.enemies)
+                enemy.pause = false;
+        }, 600);
     }
 }
 

@@ -14,6 +14,8 @@ const gfx = {
     "enemies": new Array<HTMLImageElement>(),
     "explosions": getImage("explosions"),
     "player": getImage("player"),
+    "playerVert": getImage("playerVert"),
+    "expo": getImage("expo"),
     "shield": getImage("shield"),
     "uiBar": getImage("uiBar"),
     "digPoints": getImage("digitsPoints"),
