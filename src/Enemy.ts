@@ -26,6 +26,7 @@ class Enemy {
 
     newInterval(stage: number) {
         clearInterval(this.interval);
+        let speed = this.ai[stage].distance / (this.ai[stage].frames * 4);
         this.interval = setInterval(() => {
             if (this.pause)
                 return;
@@ -33,10 +34,10 @@ class Enemy {
             if (this.spriteStage >= 4)
                 this.spriteStage = 0;
             this.moveTo({
-                x: this.position.x + this.ai[stage].direction.x * this.ai[stage].speed,
-                y: this.position.y + this.ai[stage].direction.y * this.ai[stage].speed,
+                x: this.position.x + this.ai[stage].direction.x * speed,
+                y: this.position.y + this.ai[stage].direction.y * speed,
             });
-            this.ai[stage].distance -= this.ai[stage].speed;
+            this.ai[stage].distance -= speed;
             if (this.ai[stage].distance <= 0)
                 if (++stage >= this.ai.length) {
                     this.kill();
@@ -52,8 +53,8 @@ class Enemy {
     }
 
     kill() {
-        clearInterval(this.interval);
         this.done = true;
+        clearInterval(this.interval);
     }
 }
 

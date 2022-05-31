@@ -13,7 +13,7 @@ interface Controls {
 interface EnemyMovement {
     direction: Coords;
     distance: number;
-    speed: number;
+    frames: number;
 }
 interface Line {
     start: Coords;

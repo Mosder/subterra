@@ -256,6 +256,8 @@ class Game {
             for (const enemy of this.enemies) {
                 if (this.rectanglesCollision({ topLeft: bullet.position, size: bulletSize },
                     { topLeft: enemy.position, size: enemySize })) {
+                    if (enemy.done)
+                        return;
                     bullet.kill();
                     enemy.kill();
                     audioPlayer.play("enemy", false);
@@ -274,6 +276,8 @@ class Game {
             for (const block of this.getCurrentBlocks()) {
                 if (this.rectanglesCollision({ topLeft: bullet.position, size: bulletSize },
                     { topLeft: this.getCurrentBackObjPosition(block.position), size: backObjSize })) {
+                    if (block.ded)
+                        return
                     block.ded = true;
                     audioPlayer.play("block", false);
                     this.points += 10;

@@ -491,38 +491,38 @@ let levels = [
             },
             {
                 spawnTime: 9e3,
-                ai: 0,
-                startY: 666,
+                ai: 1,
+                startY: 0,
                 sprite: 1
             },
             {
                 spawnTime: 19e3,
-                ai: 0,
-                startY: 666,
+                ai: 2,
+                startY: 1080,
                 sprite: 0
             },
             {
                 spawnTime: 26e3,
-                ai: 0,
-                startY: 666,
+                ai: 3,
+                startY: 720 /*+67.5*/,
                 sprite: 2
             },
             {
                 spawnTime: 33e3,
-                ai: 0,
-                startY: 666,
+                ai: 3,
+                startY: 720 /*+67.5*/,
                 sprite: 3
             },
             {
                 spawnTime: 40e3,
                 ai: 0,
-                startY: 666,
+                startY: 0,
                 sprite: 0
             },
             {
                 spawnTime: 48e3,
-                ai: 0,
-                startY: 666,
+                ai: 4,
+                startY: 1080,
                 sprite: 4
             }
         ],

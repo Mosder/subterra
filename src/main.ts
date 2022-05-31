@@ -34,8 +34,6 @@ document.body.addEventListener("keyup", (e) => {
     }
 });
 
-// TODO: EnemyAI
-
 // let canvas = document.getElementById("game");
 // let screen = 0;
 // let points = "";
